@@ -61,7 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
 		
 		try {
 			Customer customer = repository.findById(id).get();
-			repository.deleteById(id);
+			delete(customer);
 			return true; 
 		} catch (Exception e) {
 			return false; 
