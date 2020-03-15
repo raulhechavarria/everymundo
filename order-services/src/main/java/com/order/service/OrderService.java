@@ -12,7 +12,7 @@ import com.order.model.Order;
 
 public interface OrderService {
 
-	void saveItems(Order order);
+	Order save(Order order);
 
 	void updateItems(@Valid Order orderDetails, Order order);
 
@@ -23,6 +23,8 @@ public interface OrderService {
 	void delByCustomerId();
 
 	Order findByID(Long orderId) throws ResourceNotFoundException;
+
+	Order update(@Valid Order orderDetails) throws ResourceNotFoundException;
 
 	
 	

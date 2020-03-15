@@ -65,19 +65,17 @@ public class OrderController {
 
 	@PostMapping
 	public Order createOrder(@RequestBody Order order) {
-		order.setId(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME));
-		service.saveItems(order);
-		return repository.save(order);
+		Order orderresult =  service.save(order);
+		return orderresult ;
 	}
 
 	@PutMapping("{id}")
 	@CachePut(value = "name", key = "id")
 	public ResponseEntity<Order> updateOrder(@PathVariable(value = "id") Long orderId,
 			@Valid @RequestBody Order orderDetails) throws ResourceNotFoundException {
-		Order order = repository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
-		service.updateItems(orderDetails, order);
-		order.setCustomerid(orderDetails.getCustomerid());
-		final Order updatedOrder = repository.save(order);
+		orderDetails.setId(orderId);
+		Order updatedOrder = service.update(orderDetails);
+		
 		return ResponseEntity.ok(updatedOrder);
 	}
 

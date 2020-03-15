@@ -35,14 +35,14 @@ public class OrderServiceImpl implements OrderService {
 	private final MongoTemplate mongoTemplate;
 
 	@Autowired
-	RabbitMQConsumer rabbitMQConsumer; 
-	
+	RabbitMQConsumer rabbitMQConsumer;
+
 	@Autowired
-	RabbitConfiguration rabbitConfiguration; 
-	
+	RabbitConfiguration rabbitConfiguration;
+
 	@Autowired
 	OrderRepository repository;
-	
+
 	@Autowired
 	ItemRepository itemRepository;
 
@@ -55,12 +55,13 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public void saveItems(Order order) {
-
+	public Order save(Order order) {
+		order.setId(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME));
 		order.getItems().forEach(action -> {
 			((Item) action).setId(sequenceGeneratorService.generateSequence(Item.SEQUENCE_NAME));
 			itemRepository.save((Item) action);
 		});
+		return repository.save(order);
 
 	}
 
@@ -109,19 +110,17 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public void delByCustomerId() {
-		
+
 		String queue = rabbitConfiguration.getQueueName();
-		String string =  rabbitConfiguration.getFanoutExchange();
-		 Queue queue2 = rabbitConfiguration.queue();
+		String string = rabbitConfiguration.getFanoutExchange();
+		Queue queue2 = rabbitConfiguration.queue();
 		// String queString = queue2.;
-		
-	//	rabbitMQConsumer.receiveMessage("Deleted message");
-		
-		
-		
-	//	String strMessage = new String(message);
-	//	logger.info("Received (No String) " + strMessage);
-	//	System.out.print(strMessage);
+
+		// rabbitMQConsumer.receiveMessage("Deleted message");
+
+		// String strMessage = new String(message);
+		// logger.info("Received (No String) " + strMessage);
+		// System.out.print(strMessage);
 		// objectMessage("", "", new Message(null, null) );
 		/*
 		 * ConnectionFactory connectionFactory = new CachingConnectionFactory();
@@ -130,15 +129,25 @@ public class OrderServiceImpl implements OrderService {
 		 * RabbitTemplate(connectionFactory); template.convertAndSend("myqueue", "foo");
 		 * String foo = (String) template.receiveAndConvert("myqueue");
 		 */
-		
+
 	}
 
 	@Override
 	public Order findByID(Long orderId) throws ResourceNotFoundException {
-		Order order = repository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
+		Order order = repository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
 		return order;
 	}
 
-	
+	@Override
+	public Order update(@Valid Order orderDetails) throws ResourceNotFoundException {
+		Order order = repository.findById(orderDetails.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderDetails.getId()));
+		updateItems(orderDetails, order);
+		order.setCustomerid(orderDetails.getCustomerid());
+		final Order updatedOrder = repository.save(order);
+
+		return updatedOrder;
+	}
 
 }
