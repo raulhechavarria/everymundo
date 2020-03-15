@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.order.configuration.Customer;
 import com.order.configuration.RabbitConfiguration;
 import com.order.configuration.RabbitMQConsumer;
+import com.order.exception.ResourceNotFoundException;
 import com.order.model.Item;
 import com.order.model.Order;
 import com.order.repository.ItemRepository;
@@ -130,6 +131,12 @@ public class OrderServiceImpl implements OrderService {
 		 * String foo = (String) template.receiveAndConvert("myqueue");
 		 */
 		
+	}
+
+	@Override
+	public Order findByID(Long orderId) throws ResourceNotFoundException {
+		Order order = repository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
+		return order;
 	}
 
 	

@@ -22,6 +22,8 @@ public interface OrderService {
 
 	void delByCustomerId();
 
+	Order findByID(Long orderId) throws ResourceNotFoundException;
+
 	
 	
 

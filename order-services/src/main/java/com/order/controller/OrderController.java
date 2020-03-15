@@ -51,8 +51,7 @@ public class OrderController {
 	@Cacheable(value = "id", key = "customerid")
 	public ResponseEntity<Order> getOrderById(@PathVariable(value = "id") Long orderId)
 			throws ResourceNotFoundException {
-		Order order = repository.findById(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
+		Order order =  service.findByID(orderId);
 		return ResponseEntity.ok().body(order);
 	}
 
@@ -66,7 +65,6 @@ public class OrderController {
 
 	@PostMapping
 	public Order createOrder(@RequestBody Order order) {
-		// Order Order = service.createObject(OrderRequest);
 		order.setId(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME));
 		service.saveItems(order);
 		return repository.save(order);
@@ -76,12 +74,9 @@ public class OrderController {
 	@CachePut(value = "name", key = "id")
 	public ResponseEntity<Order> updateOrder(@PathVariable(value = "id") Long orderId,
 			@Valid @RequestBody Order orderDetails) throws ResourceNotFoundException {
-		Order order = repository.findById(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
+		Order order = repository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderId));
 		service.updateItems(orderDetails, order);
 		order.setCustomerid(orderDetails.getCustomerid());
-		// order.setItems(items);
-
 		final Order updatedOrder = repository.save(order);
 		return ResponseEntity.ok(updatedOrder);
 	}
@@ -101,10 +96,6 @@ public class OrderController {
 	@DeleteMapping("customer/{id}")
 	public Map<String, Boolean> deleteCustomer(@PathVariable(value = "id") Long customerId)
 			throws ResourceNotFoundException {
-		// Order Order = repository.findById(OrderId).orElseThrow(() -> new
-		// ResourceNotFoundException("Order not found for this id :: " + OrderId));
-
-		// repository.delete(Order);
 		service.delByCustomerId(customerId);
 		Map<String, Boolean> response = new HashMap<>();
 		response.put("deleted", Boolean.TRUE);
