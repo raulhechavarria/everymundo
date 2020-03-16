@@ -111,24 +111,12 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public void delByCustomerId() {
 
-		String queue = rabbitConfiguration.getQueueName();
-		String string = rabbitConfiguration.getFanoutExchange();
-		Queue queue2 = rabbitConfiguration.queue();
-		// String queString = queue2.;
-
-		// rabbitMQConsumer.receiveMessage("Deleted message");
-
-		// String strMessage = new String(message);
-		// logger.info("Received (No String) " + strMessage);
-		// System.out.print(strMessage);
-		// objectMessage("", "", new Message(null, null) );
-		/*
-		 * ConnectionFactory connectionFactory = new CachingConnectionFactory();
-		 * AmqpAdmin admin = new RabbitAdmin(connectionFactory); admin.declareQueue(new
-		 * Queue("myqueue")); AmqpTemplate template = new
-		 * RabbitTemplate(connectionFactory); template.convertAndSend("myqueue", "foo");
-		 * String foo = (String) template.receiveAndConvert("myqueue");
-		 */
+		ConnectionFactory connectionFactory = new CachingConnectionFactory();
+	//	AmqpAdmin admin = new RabbitAdmin(connectionFactory);
+	//	admin.declareQueue(new Queue("myqueue"));
+		AmqpTemplate template = new RabbitTemplate(connectionFactory);
+		template.convertAndSend("myqueue", "foo");
+		String foo = (String) template.receiveAndConvert("myqueue");
 
 	}
 
@@ -141,8 +129,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public Order update(@Valid Order orderDetails) throws ResourceNotFoundException {
-		Order order = repository.findById(orderDetails.getId())
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found for this id :: " + orderDetails.getId()));
+		Order order = repository.findById(orderDetails.getId()).orElseThrow(
+				() -> new ResourceNotFoundException("Order not found for this id :: " + orderDetails.getId()));
 		updateItems(orderDetails, order);
 		order.setCustomerid(orderDetails.getCustomerid());
 		final Order updatedOrder = repository.save(order);

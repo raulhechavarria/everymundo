@@ -10,30 +10,18 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfiguration {
+	
+	 private static final String LISTENER_METHOD = "receiveMessage";
+
+	public static final String DEFAULT_PARSING_QUEUE = "receiveMessage";
+	
 	@Value("${fanout.exchange}")
 	private String fanoutExchange;
 	@Value("${queue.name}")
 	private String queueName;
 
-	
-	public String getFanoutExchange() {
-		return fanoutExchange;
-	}
-
-	public void setFanoutExchange(String fanoutExchange) {
-		this.fanoutExchange = fanoutExchange;
-	}
-
-	public String getQueueName() {
-		return queueName;
-	}
-
-	public void setQueueName(String queueName) {
-		this.queueName = queueName;
-	}
-
 	@Bean
-	public Queue queue() {
+	Queue queue() {
 		return new Queue(queueName, true);
 	}
 
